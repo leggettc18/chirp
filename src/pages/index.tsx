@@ -1,7 +1,19 @@
 import Head from "next/head";
 import Link from "next/link";
 import { api } from "~/utils/api";
-import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
+import { SignInButton, useUser } from "@clerk/nextjs";
+
+const CreatePostWizard = () => {
+    const { user } = useUser();
+    if (!user) {
+        return null;
+    }
+
+    return <div className="flex gap-3 w-full">
+        <img src={user.profileImageUrl} alt="Profile image" className="w-14 h-14 rounded-full" />
+        <input placeholder="Type some emojis!" className="bg-transparent grow outline-none" />
+    </div>
+};
 
 export default function Home() {
     const user = useUser();
@@ -22,7 +34,7 @@ export default function Home() {
                                 <SignInButton />
                             </div>
                         )}
-                        {!!user.isSignedIn && <SignOutButton />}
+                        {user.isSignedIn && <CreatePostWizard />}
                     </div>
                     <div className="flex flex-col">
                         {data?.map((post) => (
