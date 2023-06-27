@@ -3,6 +3,16 @@ import Head from "next/head";
 import { LoadingPage } from "~/components/loading";
 import { api } from "~/utils/api";
 
+const ProfileFeed = (props: { userId: string }) => {
+    const { data, isLoading } = api.posts.getPostsByUserId.useQuery({ userId: props.userId });
+    if (isLoading) return <LoadingPage />;
+    if (!data || data.length === 0) return <div>User has not posted anything</div>;
+
+    return <div className="flex flex-col">
+        {data.map((fullPost) => (<PostView {...fullPost} key={fullPost.post.id} />))}
+    </div>
+}
+
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
 const ProfilePage: NextPage<PageProps> = ({ username }) => {
@@ -28,7 +38,8 @@ const ProfilePage: NextPage<PageProps> = ({ username }) => {
                 <div className="p-4 text-2xl font-bold">
                     {`@${data.username ?? ""}`}
                 </div>
-                <div className="border-b border-slate-400 w-full"></div>
+                <div className="border-b border-slate-400 w-full" />
+                <ProfileFeed userId={data.id} />
             </PageLayout>
         </>
     );
@@ -40,6 +51,7 @@ import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import { PageLayout } from "~/components/layout";
 import Image from "next/image";
+import { PostView } from "~/components/postview";
 
 export const getStaticProps = async (context: GetStaticPropsContext<{ slug: string }>) => {
     const ssg = createServerSideHelpers({
